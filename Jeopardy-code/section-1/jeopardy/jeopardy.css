@@ -7,7 +7,37 @@
 */
 
 table,
-th,
 td {
   border: 1px solid black;
+  width: 125px;
+  height: 100px;
+
+  /* centers text in the middle of the cell - horizontally and vertically */
+  text-align: center;
+  vertical-align: middle;
+
+  /* add gap between text and cell edge */
+  padding: 10px;
+}
+
+th {
+  /* separated the styling for th for different cell HEIGHT */
+  border: 1px solid black;
+  width: 125px;
+  height: 25px;
+
+  /* centers text in the middle of the cell - horizontally and vertically */
+  text-align: center;
+  vertical-align: middle;
+
+  /* add gap between text and cell edge */
+  padding: 10px;
+}
+
+#jeopardy {
+  table-layout: fixed;
+}
+
+#restart-btn {
+  margin-bottom: 20px;
 }

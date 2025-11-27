@@ -48,8 +48,6 @@ async function getCategoryIds() {
   return catIds;
 }
 
-// let categoryIds = getCategoryIds();
-
 /** Return object with data about a category:
  *
  *  Returns { title: "Math", clues: clue-array }
@@ -91,16 +89,6 @@ async function getCategory(catId) {
   };
 }
 
-// getCategory(18);
-
-// YOU CANNOT CALL iterate over promises... also can't await in top-level
-// let categoryIds = await getCategoryIds();
-// for (let id of categoryIds) {
-//   let category = getCategory(id);
-//   categories.push(category);
-// }
-// console.log(categoryIds);
-
 /** Fill the HTML table#jeopardy with the categories & cells for questions.
  *
  * - The <thead> should be filled w/a <tr>, and a <th> for each category
@@ -110,9 +98,9 @@ async function getCategory(catId) {
  */
 
 async function fillTable() {
+  // creates a table with an id 'jeopardy'
   const jeopardyTable = document.createElement("table");
   jeopardyTable.id = `jeopardy`;
-  // const jeopardyTable = document.getElementById(`jeopardy`);
 
   // 1. HEADER ROW SETUP
 
@@ -122,9 +110,10 @@ async function fillTable() {
   const tr = document.createElement("tr");
   jeopardyTable.appendChild(thead);
 
-  // select thead from the table to add tr and th
+  // thead will have one row of th cells -> the table header cells will contain the category
   thead.appendChild(tr);
 
+  // for each category, create a th cell and make its displayed text show the category title
   for (let category of categories) {
     console.log(category);
     const th = document.createElement("th");
@@ -147,11 +136,12 @@ async function fillTable() {
     for (let col = 0; col < NUM_CATEGORIES; col++) {
       // adding each question/clue one at a time, left to right - number of columns per row = NUM_CATEGORIES (6)
       const td = document.createElement("td");
-      td.textContent = "?";
+      td.textContent = "?"; // by default, each table data cell shows '?'.
 
-      // add click handler to td
+      // add event listener for clicking clues -> * this lets you click td cells so ? -> question -> answer
       td.addEventListener("click", handleClick);
 
+      // add the table data cell to the table row element
       tr.append(td);
     }
 
@@ -162,6 +152,7 @@ async function fillTable() {
   // append the instantiated tbody to the table
   jeopardyTable.append(tbody);
 
+  // append the jeopardyTable (now that its been filled in) to the document.body
   document.body.appendChild(jeopardyTable);
 }
 
@@ -197,15 +188,27 @@ function handleClick(evt) {
  */
 
 function showLoadingView() {
-  // replace this with a loading gif -> display:
+  // sets loadinggif to display it
   loadinggif.style.display = "inline-block";
+
+  // get the restart button and hide it while we load new category data
+  const restartBtn = document.getElementById("restart-btn");
+  if (restartBtn) {
+    restartBtn.style.display = "none";
+  }
 }
 
 /** Remove the loading spinner and update the button used to fetch data. */
 
 function hideLoadingView() {
-  // set loading gif display -> None
+  // set loading gif display -> None, this hides the loading-gif
   loadinggif.style.display = "none";
+
+  // now that new category data has loaded, we display the restart btn
+  const restartBtn = document.getElementById("restart-btn");
+  if (restartBtn) {
+    restartBtn.style.display = "inline-block";
+  }
 }
 
 /** Start game:
@@ -234,33 +237,59 @@ async function setupAndStart() {
   fillTable();
 }
 
-addLoadingGif();
-addRestartButton();
-setupAndStart();
-
 /** On click of start / restart button, set up game. */
 function addRestartButton() {
+  // creates a button with text "Restart Game"
   const restartButton = document.createElement("button");
+
+  // adding id to restartButton for displaying at appropriate times, and styling
+  restartButton.id = "restart-btn";
   restartButton.textContent = "Restart Game";
+
+  // adds event handler so when you click, it calls restartGame()
   restartButton.addEventListener("click", restartGame);
+
+  // add the restart button to the document.body
   document.body.appendChild(restartButton);
 }
 
 function addLoadingGif() {
+  // uses the img tag created at the start, sets its source to the loading_icon.gif I added
   loadinggif.src = "Loading_icon.gif";
+
+  // by default, it shows as none - its display is toggled as needed by showLoadingView() and hideLoadingView() which are called in setupAndStart().
   loadinggif.style.display = "none";
+
+  // adds the loading-gif to the document.body
   document.body.appendChild(loadinggif);
 }
 
-// TODO
 function restartGame() {
   console.log("restart game clicked");
+
+  // wipe the category data
   categories = [];
 
   // remove existing jeopardy table - I do it by its id
   document.body.removeChild(document.getElementById("jeopardy"));
+
+  // set up and start a new jeopardy game
   setupAndStart();
 }
 
-/** On page load, add event handler for clicking clues */
-// TODO
+/** On page load, start a jeopardy game */
+document.addEventListener("DOMContentLoaded", () => {
+  // JS code here executes after the DOM is ready (without waiting for stylesheets, images, subframes to finish loading - preferred for code that manipulates the DOM since it runs earlier than window.onload)
+
+  // add a header to display Jeopardy at top
+  const header = document.createElement("h1");
+  header.textContent = "Jeopardy";
+  document.body.appendChild(header);
+
+  // THESE ARE SETUP TO ONLY SETUP ONCE
+  addLoadingGif();
+  addRestartButton();
+
+  // Start a jeopardy game - kicks off category data retrieval and sets up the table
+  setupAndStart();
+});
